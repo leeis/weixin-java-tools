@@ -14,16 +14,24 @@ import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -60,13 +68,16 @@ public class DefaultApacheHttpClientBuilder implements ApacheHttpClientBuilder {
    * 闲置连接监控线程
    */
   private IdleConnectionMonitorThread idleConnectionMonitorThread;
-  private HttpClientBuilder httpClientBuilder;
+  /**
+   * 持有client对象,仅初始化一次,避免多service实例的时候造成重复初始化的问题
+   */
+  private CloseableHttpClient closeableHttpClient;
 
   private DefaultApacheHttpClientBuilder() {
   }
 
   public static DefaultApacheHttpClientBuilder get() {
-    return new DefaultApacheHttpClientBuilder();
+    return DefaultApacheHttpClientBuilder.SingletonHolder.INSTANCE;
   }
 
   @Override
@@ -211,9 +222,10 @@ public class DefaultApacheHttpClientBuilder implements ApacheHttpClientBuilder {
     this.idleConnectionMonitorThread.setDaemon(true);
     this.idleConnectionMonitorThread.start();
 
-    this.httpClientBuilder = HttpClients.custom()
+    HttpClientBuilder httpClientBuilder = HttpClients.custom()
       .setConnectionManager(connectionManager)
       .setConnectionManagerShared(true)
+      .setSSLSocketFactory(this.buildSSLConnectionSocketFactory())
       .setDefaultRequestConfig(
         RequestConfig.custom()
           .setSocketTimeout(this.soTimeout)
@@ -231,13 +243,37 @@ public class DefaultApacheHttpClientBuilder implements ApacheHttpClientBuilder {
         new AuthScope(this.httpProxyHost, this.httpProxyPort),
         new UsernamePasswordCredentials(this.httpProxyUsername,
           this.httpProxyPassword));
-      this.httpClientBuilder.setDefaultCredentialsProvider(provider);
+      httpClientBuilder.setDefaultCredentialsProvider(provider);
     }
 
     if (StringUtils.isNotBlank(this.userAgent)) {
-      this.httpClientBuilder.setUserAgent(this.userAgent);
+      httpClientBuilder.setUserAgent(this.userAgent);
     }
+    this.closeableHttpClient = httpClientBuilder.build();
     prepared.set(true);
+  }
+
+  private SSLConnectionSocketFactory buildSSLConnectionSocketFactory() {
+    try {
+      SSLContext sslcontext = SSLContexts.custom()
+        //忽略掉对服务器端证书的校验
+        .loadTrustMaterial(new TrustStrategy() {
+          @Override
+          public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            return true;
+          }
+        }).build();
+
+      return new SSLConnectionSocketFactory(
+        sslcontext,
+        new String[]{"TLSv1"},
+        null,
+        SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+    } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+      this.log.error(e.getMessage(), e);
+    }
+
+    return null;
   }
 
   @Override
@@ -245,7 +281,14 @@ public class DefaultApacheHttpClientBuilder implements ApacheHttpClientBuilder {
     if (!prepared.get()) {
       prepare();
     }
-    return this.httpClientBuilder.build();
+    return this.closeableHttpClient;
+  }
+
+  /**
+   * DefaultApacheHttpClientBuilder 改为单例模式,并持有唯一的CloseableHttpClient(仅首次调用创建)
+   */
+  private static class SingletonHolder {
+    private static final DefaultApacheHttpClientBuilder INSTANCE = new DefaultApacheHttpClientBuilder();
   }
 
   public static class IdleConnectionMonitorThread extends Thread {

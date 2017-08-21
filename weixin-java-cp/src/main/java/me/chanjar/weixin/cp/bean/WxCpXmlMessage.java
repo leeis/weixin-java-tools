@@ -3,7 +3,7 @@ package me.chanjar.weixin.cp.bean;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import me.chanjar.weixin.common.util.xml.XStreamCDataConverter;
-import me.chanjar.weixin.cp.api.WxCpConfigStorage;
+import me.chanjar.weixin.cp.config.WxCpConfigStorage;
 import me.chanjar.weixin.cp.util.crypto.WxCpCryptUtil;
 import me.chanjar.weixin.cp.util.xml.XStreamTransformer;
 import org.apache.commons.io.IOUtils;
@@ -164,6 +164,8 @@ public class WxCpXmlMessage implements Serializable {
   private SendLocationInfo sendLocationInfo = new SendLocationInfo();
 
   protected static WxCpXmlMessage fromXml(String xml) {
+    //修改微信变态的消息内容格式，方便解析
+    xml = xml.replace("</PicList><PicList>", "");
     return XStreamTransformer.fromXml(WxCpXmlMessage.class, xml);
   }
 

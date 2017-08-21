@@ -4,6 +4,8 @@ import jodd.http.HttpConnectionProvider;
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 import jodd.http.ProxyInfo;
+import jodd.util.StringPool;
+
 import me.chanjar.weixin.common.bean.result.WxError;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.common.util.http.RequestHttp;
@@ -15,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by ecoolper on 2017/5/5.
@@ -34,10 +37,11 @@ public class JoddMaterialVoiceAndImageDownloadRequestExecutor extends MaterialVo
 
     request.query("media_id", materialId);
     HttpResponse response = request.send();
+    response.charset(StringPool.UTF_8);
     try (InputStream inputStream = new ByteArrayInputStream(response.bodyBytes())) {
       // 下载媒体文件出错
       byte[] responseContent = IOUtils.toByteArray(inputStream);
-      String responseContentString = new String(responseContent, "UTF-8");
+      String responseContentString = new String(responseContent, StandardCharsets.UTF_8);
       if (responseContentString.length() < 100) {
         try {
           WxError wxError = WxGsonBuilder.create().fromJson(responseContentString, WxError.class);

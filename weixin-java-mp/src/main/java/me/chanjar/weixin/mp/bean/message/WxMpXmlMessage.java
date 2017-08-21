@@ -207,6 +207,9 @@ public class WxMpXmlMessage implements Serializable {
    * <pre>
    * 领取场景值，用于领取渠道数据统计。可在生成二维码接口及添加Addcard接口中自定义该字段的字符串值。
    * 核销卡券时：开发者发起核销时传入的自定义参数，用于进行核销渠道统计
+   * 另外：
+   * 官网文档中，微信卡券>>卡券事件推送>>2.7 进入会员卡事件推送 user_view_card
+   * OuterStr：商户自定义二维码渠道参数，用于标识本次扫码打开会员卡来源来自于某个渠道值的二维码
    * </pre>
    */
   @XStreamAlias("OuterStr")
@@ -253,6 +256,69 @@ public class WxMpXmlMessage implements Serializable {
    */
   @XStreamAlias("RemarkAmount")
   private String remarkAmount;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.10 库存报警事件card_sku_remind
+   * Detail：报警详细信息
+   * </pre>
+   */
+  @XStreamAlias("Detail")
+  private String detail;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.9 会员卡内容更新事件 update_member_card
+   * ModifyBonus：变动的积分值
+   * </pre>
+   */
+  @XStreamAlias("ModifyBonus")
+  private String modifyBonus;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.9 会员卡内容更新事件 update_member_card
+   * ModifyBalance：变动的余额值
+   * </pre>
+   */
+  @XStreamAlias("ModifyBalance")
+  private String modifyBalance;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.6 买单事件推送 User_pay_from_pay_cell
+   * TransId：微信支付交易订单号（只有使用买单功能核销的卡券才会出现）
+   * </pre>
+   */
+  @XStreamAlias("TransId")
+  private String transId;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.6 买单事件推送 User_pay_from_pay_cell
+   * LocationId：门店ID，当前卡券核销的门店ID（只有通过卡券商户助手和买单核销时才会出现）
+   * </pre>
+   */
+  @XStreamAlias("LocationId")
+  private String locationId;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.6 买单事件推送 User_pay_from_pay_cell
+   * Fee：实付金额，单位为分
+   * </pre>
+   */
+  @XStreamAlias("Fee")
+  private String fee;
+
+  /**
+   * <pre>
+   * 官网文档中，微信卡券>>卡券事件推送>>2.6 买单事件推送 User_pay_from_pay_cell
+   * OriginalFee：应付金额，单位为分
+   * </pre>
+   */
+  @XStreamAlias("OriginalFee")
+  private String originalFee;
 
   @XStreamAlias("ScanCodeInfo")
   private ScanCodeInfo scanCodeInfo = new ScanCodeInfo();
@@ -359,6 +425,8 @@ public class WxMpXmlMessage implements Serializable {
   private Integer deviceStatus;
 
   public static WxMpXmlMessage fromXml(String xml) {
+    //修改微信变态的消息内容格式，方便解析
+    xml = xml.replace("</PicList><PicList>", "");
     return XStreamTransformer.fromXml(WxMpXmlMessage.class, xml);
   }
 
@@ -466,6 +534,62 @@ public class WxMpXmlMessage implements Serializable {
 
   public void setFailReason(String failReason) {
     this.failReason = failReason;
+  }
+
+  public String getDetail() {
+    return detail;
+  }
+
+  public void setDetail(String detail) {
+    this.detail = detail;
+  }
+
+  public String getModifyBonus() {
+    return modifyBonus;
+  }
+
+  public void setModifyBonus(String modifyBonus) {
+    this.modifyBonus = modifyBonus;
+  }
+
+  public String getModifyBalance() {
+    return modifyBalance;
+  }
+
+  public void setModifyBalance(String modifyBalance) {
+    this.modifyBalance = modifyBalance;
+  }
+
+  public String getTransId() {
+    return transId;
+  }
+
+  public void setTransId(String transId) {
+    this.transId = transId;
+  }
+
+  public String getLocationId() {
+    return locationId;
+  }
+
+  public void setLocationId(String locationId) {
+    this.locationId = locationId;
+  }
+
+  public String getFee() {
+    return fee;
+  }
+
+  public void setFee(String fee) {
+    this.fee = fee;
+  }
+
+  public String getOriginalFee() {
+    return originalFee;
+  }
+
+  public void setOriginalFee(String originalFee) {
+    this.originalFee = originalFee;
   }
 
   public String getStoreUniqId() {

@@ -1,24 +1,3 @@
-/**
- * 对公众平台发送给公众账号的消息加解密示例代码.
- *
- * @copyright Copyright (c) 1998-2014 Tencent Inc.
- * <p>
- * 针对org.apache.commons.codec.binary.Base64，
- * 需要导入架包commons-codec-1.9（或commons-codec-1.8等其他版本）
- * 官方下载地址：http://commons.apache.org/proper/commons-codec/download_codec.cgi
- * <p>
- * 针对org.apache.commons.codec.binary.Base64，
- * 需要导入架包commons-codec-1.9（或commons-codec-1.8等其他版本）
- * 官方下载地址：http://commons.apache.org/proper/commons-codec/download_codec.cgi
- */
-
-// ------------------------------------------------------------------------
-
-/**
- * 针对org.apache.commons.codec.binary.Base64，
- * 需要导入架包commons-codec-1.9（或commons-codec-1.8等其他版本）
- * 官方下载地址：http://commons.apache.org/proper/commons-codec/download_codec.cgi
- */
 package me.chanjar.weixin.common.util.crypto;
 
 import org.apache.commons.codec.binary.Base64;
@@ -34,13 +13,23 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * <pre>
+ * 对公众平台发送给公众账号的消息加解密示例代码.
+ * Copyright (c) 1998-2014 Tencent Inc.
+ * 针对org.apache.commons.codec.binary.Base64，
+ * 需要导入架包commons-codec-1.9（或commons-codec-1.8等其他版本）
+ * 官方下载地址：http://commons.apache.org/proper/commons-codec/download_codec.cgi
+ * </pre>
+ */
 public class WxCryptUtil {
 
   private static final Base64 base64 = new Base64();
-  private static final Charset CHARSET = Charset.forName("utf-8");
+  private static final Charset CHARSET = StandardCharsets.UTF_8;
 
   private static final ThreadLocal<DocumentBuilder> builderLocal = new ThreadLocal<DocumentBuilder>() {
     @Override
@@ -64,9 +53,9 @@ public class WxCryptUtil {
   /**
    * 构造函数
    *
-   * @param token           公众平台上，开发者设置的token
-   * @param encodingAesKey  公众平台上，开发者设置的EncodingAESKey
-   * @param appidOrCorpid          公众平台appid/corpid
+   * @param token          公众平台上，开发者设置的token
+   * @param encodingAesKey 公众平台上，开发者设置的EncodingAESKey
+   * @param appidOrCorpid  公众平台appid/corpid
    */
   public WxCryptUtil(String token, String encodingAesKey,
                      String appidOrCorpid) {
@@ -89,8 +78,6 @@ public class WxCryptUtil {
 
   /**
    * 将一个数字转换成生成4个字节的网络字节序bytes数组
-   *
-   * @param number
    */
   private static byte[] number2BytesInNetworkOrder(int number) {
     byte[] orderBytes = new byte[4];
@@ -103,8 +90,6 @@ public class WxCryptUtil {
 
   /**
    * 4个字节的网络字节序bytes数组还原成一个数字
-   *
-   * @param bytesInNetworkOrder
    */
   private static int bytesNetworkOrder2Number(byte[] bytesInNetworkOrder) {
     int sourceNumber = 0;
@@ -231,8 +216,7 @@ public class WxCryptUtil {
    * @param encryptedXml 密文，对应POST请求的数据
    * @return 解密后的原文
    */
-  public String decrypt(String msgSignature, String timeStamp, String nonce,
-                        String encryptedXml) {
+  public String decrypt(String msgSignature, String timeStamp, String nonce, String encryptedXml) {
     // 密钥，公众账号的app corpSecret
     // 提取密文
     String cipherText = extractEncryptPart(encryptedXml);
