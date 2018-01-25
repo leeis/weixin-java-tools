@@ -2,11 +2,13 @@ package me.chanjar.weixin.mp.bean.result;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 import me.chanjar.weixin.common.util.ToStringUtils;
 import me.chanjar.weixin.common.util.json.WxBooleanTypeAdapter;
 import me.chanjar.weixin.common.util.json.WxDateTypeAdapter;
 import me.chanjar.weixin.mp.util.json.WxMpGsonBuilder;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +19,10 @@ import java.util.List;
  * @author <a href="https://github.com/binarywang">Binary Wang</a>
  * </pre>
  */
-public class WxMpCurrentAutoReplyInfo {
+@Data
+public class WxMpCurrentAutoReplyInfo implements Serializable {
+  private static final long serialVersionUID = 8294705001262751638L;
+
   @Override
   public String toString() {
     return ToStringUtils.toSimpleString(this);
@@ -44,47 +49,10 @@ public class WxMpCurrentAutoReplyInfo {
   @SerializedName("keyword_autoreply_info")
   private KeywordAutoReplyInfo keywordAutoReplyInfo;
 
-  public Boolean getAddFriendReplyOpen() {
-    return this.isAddFriendReplyOpen;
-  }
+  @Data
+  public static class AutoReplyRule implements Serializable {
+    private static final long serialVersionUID = -6415971838145909046L;
 
-  public void setAddFriendReplyOpen(Boolean addFriendReplyOpen) {
-    isAddFriendReplyOpen = addFriendReplyOpen;
-  }
-
-  public Boolean getAutoReplyOpen() {
-    return this.isAutoReplyOpen;
-  }
-
-  public void setAutoReplyOpen(Boolean autoReplyOpen) {
-    isAutoReplyOpen = autoReplyOpen;
-  }
-
-  public AutoReplyInfo getAddFriendAutoReplyInfo() {
-    return this.addFriendAutoReplyInfo;
-  }
-
-  public void setAddFriendAutoReplyInfo(AutoReplyInfo addFriendAutoReplyInfo) {
-    this.addFriendAutoReplyInfo = addFriendAutoReplyInfo;
-  }
-
-  public AutoReplyInfo getMessageDefaultAutoReplyInfo() {
-    return this.messageDefaultAutoReplyInfo;
-  }
-
-  public void setMessageDefaultAutoReplyInfo(AutoReplyInfo messageDefaultAutoReplyInfo) {
-    this.messageDefaultAutoReplyInfo = messageDefaultAutoReplyInfo;
-  }
-
-  public KeywordAutoReplyInfo getKeywordAutoReplyInfo() {
-    return this.keywordAutoReplyInfo;
-  }
-
-  public void setKeywordAutoReplyInfo(KeywordAutoReplyInfo keywordAutoReplyInfo) {
-    this.keywordAutoReplyInfo = keywordAutoReplyInfo;
-  }
-
-  public static class AutoReplyRule {
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
@@ -106,48 +74,12 @@ public class WxMpCurrentAutoReplyInfo {
     @SerializedName("reply_list_info")
     private List<ReplyInfo> replyListInfo;
 
-    public String getRuleName() {
-      return this.ruleName;
-    }
-
-    public void setRuleName(String ruleName) {
-      this.ruleName = ruleName;
-    }
-
-    public Date getCreateTime() {
-      return this.createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-      this.createTime = createTime;
-    }
-
-    public String getReplyMode() {
-      return this.replyMode;
-    }
-
-    public void setReplyMode(String replyMode) {
-      this.replyMode = replyMode;
-    }
-
-    public List<KeywordInfo> getKeywordListInfo() {
-      return this.keywordListInfo;
-    }
-
-    public void setKeywordListInfo(List<KeywordInfo> keywordListInfo) {
-      this.keywordListInfo = keywordListInfo;
-    }
-
-    public List<ReplyInfo> getReplyListInfo() {
-      return this.replyListInfo;
-    }
-
-    public void setReplyListInfo(List<ReplyInfo> replyListInfo) {
-      this.replyListInfo = replyListInfo;
-    }
   }
 
-  public static class ReplyInfo {
+  @Data
+  public static class ReplyInfo implements Serializable {
+    private static final long serialVersionUID = -3429575601599101690L;
+
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
@@ -159,32 +91,12 @@ public class WxMpCurrentAutoReplyInfo {
     @SerializedName("news_info")
     private NewsInfo newsInfo;
 
-    public String getType() {
-      return this.type;
-    }
-
-    public void setType(String type) {
-      this.type = type;
-    }
-
-    public String getContent() {
-      return this.content;
-    }
-
-    public void setContent(String content) {
-      this.content = content;
-    }
-
-    public NewsInfo getNewsInfo() {
-      return this.newsInfo;
-    }
-
-    public void setNewsInfo(NewsInfo newsInfo) {
-      this.newsInfo = newsInfo;
-    }
   }
 
-  public static class NewsInfo {
+  @Data
+  public static class NewsInfo implements Serializable {
+    private static final long serialVersionUID = 2958827725972593328L;
+
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
@@ -192,16 +104,12 @@ public class WxMpCurrentAutoReplyInfo {
 
     private List<NewsItem> list;
 
-    public List<NewsItem> getList() {
-      return this.list;
-    }
-
-    public void setList(List<NewsItem> list) {
-      this.list = list;
-    }
   }
 
-  public static class NewsItem {
+  @Data
+  public static class NewsItem implements Serializable {
+    private static final long serialVersionUID = -680356309029767176L;
+
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
@@ -220,64 +128,12 @@ public class WxMpCurrentAutoReplyInfo {
     private String sourceUrl;
     private String title;
 
-    public String getCoverUrl() {
-      return this.coverUrl;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-      this.coverUrl = coverUrl;
-    }
-
-    public String getAuthor() {
-      return this.author;
-    }
-
-    public void setAuthor(String author) {
-      this.author = author;
-    }
-
-    public String getContentUrl() {
-      return this.contentUrl;
-    }
-
-    public void setContentUrl(String contentUrl) {
-      this.contentUrl = contentUrl;
-    }
-
-    public String getDigest() {
-      return this.digest;
-    }
-
-    public void setDigest(String digest) {
-      this.digest = digest;
-    }
-
-    public Boolean getShowCover() {
-      return this.showCover;
-    }
-
-    public void setShowCover(Boolean showCover) {
-      this.showCover = showCover;
-    }
-
-    public String getSourceUrl() {
-      return this.sourceUrl;
-    }
-
-    public void setSourceUrl(String sourceUrl) {
-      this.sourceUrl = sourceUrl;
-    }
-
-    public String getTitle() {
-      return this.title;
-    }
-
-    public void setTitle(String title) {
-      this.title = title;
-    }
   }
 
-  public static class KeywordInfo {
+  @Data
+  public static class KeywordInfo implements Serializable {
+    private static final long serialVersionUID = 7720246983986706379L;
+
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
@@ -288,49 +144,24 @@ public class WxMpCurrentAutoReplyInfo {
     private String matchMode;
     private String content;
 
-    public String getType() {
-      return this.type;
-    }
-
-    public void setType(String type) {
-      this.type = type;
-    }
-
-    public String getMatchMode() {
-      return this.matchMode;
-    }
-
-    public void setMatchMode(String matchMode) {
-      this.matchMode = matchMode;
-    }
-
-    public String getContent() {
-      return this.content;
-    }
-
-    public void setContent(String content) {
-      this.content = content;
-    }
   }
 
-  public static class KeywordAutoReplyInfo {
+  @Data
+  public static class KeywordAutoReplyInfo implements Serializable {
+    private static final long serialVersionUID = -8789197949404753083L;
+
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
     }
 
     private List<AutoReplyRule> list;
-
-    public List<AutoReplyRule> getList() {
-      return this.list;
-    }
-
-    public void setList(List<AutoReplyRule> list) {
-      this.list = list;
-    }
   }
 
-  public static class AutoReplyInfo {
+  @Data
+  public static class AutoReplyInfo implements Serializable {
+    private static final long serialVersionUID = 4993719555937843712L;
+
     @Override
     public String toString() {
       return ToStringUtils.toSimpleString(this);
@@ -338,22 +169,6 @@ public class WxMpCurrentAutoReplyInfo {
 
     private String type;
     private String content;
-
-    public String getType() {
-      return this.type;
-    }
-
-    public void setType(String type) {
-      this.type = type;
-    }
-
-    public String getContent() {
-      return this.content;
-    }
-
-    public void setContent(String content) {
-      this.content = content;
-    }
   }
 
 }

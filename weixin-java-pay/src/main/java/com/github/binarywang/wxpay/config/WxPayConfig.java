@@ -36,9 +36,14 @@ public class WxPayConfig {
   private String subMchId;
   private String notifyUrl;
   private String tradeType;
+  private String signType;
   private SSLContext sslContext;
   private String keyPath;
   private boolean useSandboxEnv = false;
+  private String httpProxyHost;
+  private Integer httpProxyPort;
+  private String httpProxyUsername;
+  private String httpProxyPassword;
 
   public String getKeyPath() {
     return keyPath;
@@ -135,6 +140,19 @@ public class WxPayConfig {
     this.tradeType = tradeType;
   }
 
+  /**
+   * 签名方式
+   * 有两种HMAC_SHA256 和MD5
+   * @see com.github.binarywang.wxpay.constant.WxPayConstants.SignType
+   */
+  public String getSignType() {
+    return this.signType;
+  }
+
+  public void setSignType(String signType) {
+    this.signType = signType;
+  }
+
   public SSLContext getSslContext() {
     return this.sslContext;
   }
@@ -159,20 +177,20 @@ public class WxPayConfig {
   }
 
   public SSLContext initSSLContext() throws WxPayException {
-    if (StringUtils.isBlank(mchId)) {
+    if (StringUtils.isBlank(this.getMchId())) {
       throw new WxPayException("请确保商户号mchId已设置");
     }
 
-    if (StringUtils.isBlank(this.keyPath)) {
+    if (StringUtils.isBlank(this.getKeyPath())) {
       throw new WxPayException("请确保证书文件地址keyPath已配置");
     }
 
     InputStream inputStream;
     final String prefix = "classpath:";
-    String fileHasProblemMsg = "证书文件【" + this.keyPath + "】有问题，请核实！";
-    String fileNotFoundMsg = "证书文件【" + this.keyPath + "】不存在，请核实！";
-    if (this.keyPath.startsWith(prefix)) {
-      String path = StringUtils.removeFirst(this.keyPath, prefix);
+    String fileHasProblemMsg = "证书文件【" + this.getKeyPath() + "】有问题，请核实！";
+    String fileNotFoundMsg = "证书文件【" + this.getKeyPath() + "】不存在，请核实！";
+    if (this.getKeyPath().startsWith(prefix)) {
+      String path = StringUtils.removeFirst(this.getKeyPath(), prefix);
       if (!path.startsWith("/")) {
         path = "/" + path;
       }
@@ -182,7 +200,7 @@ public class WxPayConfig {
       }
     } else {
       try {
-        File file = new File(this.keyPath);
+        File file = new File(this.getKeyPath());
         if (!file.exists()) {
           throw new WxPayException(fileNotFoundMsg);
         }
@@ -195,7 +213,7 @@ public class WxPayConfig {
 
     try {
       KeyStore keystore = KeyStore.getInstance("PKCS12");
-      char[] partnerId2charArray = mchId.toCharArray();
+      char[] partnerId2charArray = this.getMchId().toCharArray();
       keystore.load(inputStream, partnerId2charArray);
       this.sslContext = SSLContexts.custom().loadKeyMaterial(keystore, partnerId2charArray).build();
       return this.sslContext;
@@ -226,5 +244,37 @@ public class WxPayConfig {
 
   public void setHttpTimeout(int httpTimeout) {
     this.httpTimeout = httpTimeout;
+  }
+
+  public String getHttpProxyHost() {
+    return httpProxyHost;
+  }
+
+  public void setHttpProxyHost(String httpProxyHost) {
+    this.httpProxyHost = httpProxyHost;
+  }
+
+  public Integer getHttpProxyPort() {
+    return httpProxyPort;
+  }
+
+  public void setHttpProxyPort(Integer httpProxyPort) {
+    this.httpProxyPort = httpProxyPort;
+  }
+
+  public String getHttpProxyUsername() {
+    return httpProxyUsername;
+  }
+
+  public void setHttpProxyUsername(String httpProxyUsername) {
+    this.httpProxyUsername = httpProxyUsername;
+  }
+
+  public String getHttpProxyPassword() {
+    return httpProxyPassword;
+  }
+
+  public void setHttpProxyPassword(String httpProxyPassword) {
+    this.httpProxyPassword = httpProxyPassword;
   }
 }

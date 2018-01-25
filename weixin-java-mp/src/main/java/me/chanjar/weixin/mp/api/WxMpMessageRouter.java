@@ -10,6 +10,7 @@ import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.common.util.LogExceptionHandler;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,6 +130,16 @@ public class WxMpMessageRouter {
    * 处理微信消息
    */
   public WxMpXmlOutMessage route(final WxMpXmlMessage wxMessage, final Map<String, Object> context) {
+    return route(wxMessage, context, null);
+  }
+  /**
+   * 处理微信消息
+   */
+  public WxMpXmlOutMessage route(final WxMpXmlMessage wxMessage, final Map<String, Object> context, WxMpService wxMpService) {
+    if(wxMpService == null){
+      wxMpService = this.wxMpService;
+    }
+    final WxMpService mpService = wxMpService;
     if (isMsgDuplicated(wxMessage)) {
       // 如果是重复消息，那么就不做处理
       return null;
@@ -158,12 +169,12 @@ public class WxMpMessageRouter {
           this.executorService.submit(new Runnable() {
             @Override
             public void run() {
-              rule.service(wxMessage, context, WxMpMessageRouter.this.wxMpService, WxMpMessageRouter.this.sessionManager, WxMpMessageRouter.this.exceptionHandler);
+              rule.service(wxMessage, context, mpService, WxMpMessageRouter.this.sessionManager, WxMpMessageRouter.this.exceptionHandler);
             }
           })
         );
       } else {
-        res = rule.service(wxMessage, context, this.wxMpService, this.sessionManager, this.exceptionHandler);
+        res = rule.service(wxMessage, context, mpService, this.sessionManager, this.exceptionHandler);
         // 在同步操作结束，session访问结束
         this.log.debug("End session access: async=false, sessionId={}", wxMessage.getFromUser());
         sessionEndAccess(wxMessage);
@@ -195,16 +206,17 @@ public class WxMpMessageRouter {
   }
 
   protected boolean isMsgDuplicated(WxMpXmlMessage wxMessage) {
-
     StringBuilder messageId = new StringBuilder();
     if (wxMessage.getMsgId() == null) {
       messageId.append(wxMessage.getCreateTime())
         .append("-").append(wxMessage.getFromUser())
-        .append("-").append(wxMessage.getEventKey() == null ? "" : wxMessage.getEventKey())
-        .append("-").append(wxMessage.getEvent() == null ? "" : wxMessage.getEvent())
+        .append("-").append(StringUtils.trimToEmpty(wxMessage.getEventKey()))
+        .append("-").append(StringUtils.trimToEmpty(wxMessage.getEvent()))
       ;
     } else {
-      messageId.append(wxMessage.getMsgId());
+      messageId.append(wxMessage.getMsgId())
+        .append("-").append(wxMessage.getCreateTime())
+        .append("-").append(wxMessage.getFromUser());
     }
 
     return this.messageDuplicateChecker.isDuplicate(messageId.toString());

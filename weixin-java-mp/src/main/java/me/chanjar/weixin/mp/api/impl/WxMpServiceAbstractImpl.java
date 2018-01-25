@@ -28,7 +28,7 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
 
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
   protected WxSessionManager sessionManager = new StandardSessionManager();
-  private WxMpConfigStorage wxMpConfigStorage;
+  protected WxMpConfigStorage wxMpConfigStorage;
   private WxMpKefuService kefuService = new WxMpKefuServiceImpl(this);
   private WxMpMaterialService materialService = new WxMpMaterialServiceImpl(this);
   private WxMpMenuService menuService = new WxMpMenuServiceImpl(this);
@@ -40,6 +40,7 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
   private WxMpDataCubeService dataCubeService = new WxMpDataCubeServiceImpl(this);
   private WxMpUserBlacklistService blackListService = new WxMpUserBlacklistServiceImpl(this);
   private WxMpTemplateMsgService templateMsgService = new WxMpTemplateMsgServiceImpl(this);
+  private WxMpSubscribeMsgService subscribeMsgService = new WxMpSubscribeMsgServiceImpl(this);
   private WxMpDeviceService deviceService = new WxMpDeviceServiceImpl(this);
   private WxMpShakeService shakeService = new WxMpShakeServiceImpl(this);
   private WxMpMemberCardService memberCardService = new WxMpMemberCardServiceImpl(this);
@@ -67,7 +68,7 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
 
   @Override
   public String getJsapiTicket(boolean forceRefresh) throws WxErrorException {
-    Lock lock = this.getWxMpConfigStorage().getAccessTokenLock();
+    Lock lock = this.getWxMpConfigStorage().getJsapiTicketLock();
     try {
       lock.lock();
       if (forceRefresh) {
@@ -208,6 +209,13 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
   }
 
   @Override
+  public void clearQuota(String appid) throws WxErrorException {
+    JsonObject o = new JsonObject();
+    o.addProperty("appid", appid);
+    this.post(CLEAR_QUOTA_URL, o.toString());
+  }
+
+  @Override
   public String get(String url, String queryParam) throws WxErrorException {
     return execute(SimpleGetRequestExecutor.create(this), url, queryParam);
   }
@@ -220,6 +228,7 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
   /**
    * 向微信端发送请求，在这里执行的策略是当发生access_token过期时才去刷新，然后重新执行请求，而不是全局定时请求
    */
+  @Override
   public <T, E> T execute(RequestExecutor<T, E> executor, String uri, E data) throws WxErrorException {
     int retryTimes = 0;
     do {
@@ -252,7 +261,7 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
     throw new RuntimeException("微信服务端异常，超出重试次数");
   }
 
-  public synchronized <T, E> T executeInternal(RequestExecutor<T, E> executor, String uri, E data) throws WxErrorException {
+  public <T, E> T executeInternal(RequestExecutor<T, E> executor, String uri, E data) throws WxErrorException {
     if (uri.contains("access_token=")) {
       throw new IllegalArgumentException("uri参数中不允许有access_token: " + uri);
     }
@@ -368,6 +377,11 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
   }
 
   @Override
+  public WxMpSubscribeMsgService getSubscribeMsgService() {
+    return this.subscribeMsgService;
+  }
+
+  @Override
   public WxMpDeviceService getDeviceService() {
     return this.deviceService;
   }
@@ -390,5 +404,80 @@ public abstract class WxMpServiceAbstractImpl<H, P> implements WxMpService, Requ
   @Override
   public WxMpMassMessageService getMassMessageService() {
     return this.massMessageService;
+  }
+
+  @Override
+  public void setKefuService(WxMpKefuService kefuService) {
+    this.kefuService = kefuService;
+  }
+
+  @Override
+  public void setMaterialService(WxMpMaterialService materialService) {
+    this.materialService = materialService;
+  }
+
+  @Override
+  public void setMenuService(WxMpMenuService menuService) {
+    this.menuService = menuService;
+  }
+
+  @Override
+  public void setUserService(WxMpUserService userService) {
+    this.userService = userService;
+  }
+
+  @Override
+  public void setTagService(WxMpUserTagService tagService) {
+    this.tagService = tagService;
+  }
+
+  @Override
+  public void setQrCodeService(WxMpQrcodeService qrCodeService) {
+    this.qrCodeService = qrCodeService;
+  }
+
+  @Override
+  public void setCardService(WxMpCardService cardService) {
+    this.cardService = cardService;
+  }
+
+  @Override
+  public void setStoreService(WxMpStoreService storeService) {
+    this.storeService = storeService;
+  }
+
+  @Override
+  public void setDataCubeService(WxMpDataCubeService dataCubeService) {
+    this.dataCubeService = dataCubeService;
+  }
+
+  @Override
+  public void setBlackListService(WxMpUserBlacklistService blackListService) {
+    this.blackListService = blackListService;
+  }
+
+  @Override
+  public void setTemplateMsgService(WxMpTemplateMsgService templateMsgService) {
+    this.templateMsgService = templateMsgService;
+  }
+
+  @Override
+  public void setDeviceService(WxMpDeviceService deviceService) {
+    this.deviceService = deviceService;
+  }
+
+  @Override
+  public void setShakeService(WxMpShakeService shakeService) {
+    this.shakeService = shakeService;
+  }
+
+  @Override
+  public void setMemberCardService(WxMpMemberCardService memberCardService) {
+    this.memberCardService = memberCardService;
+  }
+
+  @Override
+  public void setMassMessageService(WxMpMassMessageService massMessageService) {
+    this.massMessageService = massMessageService;
   }
 }

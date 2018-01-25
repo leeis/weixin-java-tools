@@ -1,27 +1,67 @@
 package com.github.binarywang.wxpay.service;
 
+import com.github.binarywang.wxpay.bean.WxPayApiData;
 import com.github.binarywang.wxpay.bean.coupon.*;
+import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
+import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
 import com.github.binarywang.wxpay.bean.request.*;
 import com.github.binarywang.wxpay.bean.result.*;
 import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.exception.WxPayException;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Map;
 
 /**
  * <pre>
- * 微信支付相关接口
+ * 微信支付相关接口.
  * Created by Binary Wang on 2016/7/28.
  * </pre>
  *
- * @author binarywang (https://github.com/binarywang)
+ * @author <a href="https://github.com/binarywang">Binary Wang</a>
  */
 public interface WxPayService {
 
   /**
+   * 获取微信支付请求url前缀，沙箱环境可能不一样
+   */
+  String getPayBaseUrl();
+
+  /**
+   * 发送post请求，得到响应字节数组
+   *
+   * @param url        请求地址
+   * @param requestStr 请求信息
+   * @param useKey     是否使用证书
+   * @return 返回请求结果字节数组
+   */
+  byte[] postForBytes(String url, String requestStr, boolean useKey) throws WxPayException;
+
+  /**
+   * 发送post请求，得到响应字符串
+   *
+   * @param url        请求地址
+   * @param requestStr 请求信息
+   * @param useKey     是否使用证书
+   * @return 返回请求结果字符串
+   */
+  String post(String url, String requestStr, boolean useKey) throws WxPayException;
+
+  /**
+   * 获取企业付款服务类
+   */
+  EntPayService getEntPayService();
+
+  /**
+   * 设置企业付款服务类，允许开发者自定义实现类
+   */
+  void setEntPayService(EntPayService entPayService);
+
+  /**
    * <pre>
-   * 查询订单(详见https://com.github.binarywang.wechat.pay.bean.pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_2)
+   * 查询订单(详见https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_2)
    * 该接口提供所有微信支付订单的查询，商户可以通过查询订单接口主动查询订单状态，完成下一步的业务逻辑。
    * 需要调用查询接口的情况：
    * ◆ 当商户后台、网络、服务器等出现异常，商户系统最终未接收到支付通知；
@@ -53,7 +93,16 @@ public interface WxPayService {
   WxPayOrderCloseResult closeOrder(String outTradeNo) throws WxPayException;
 
   /**
-   * 统一下单(详见http://com.github.binarywang.wechat.pay.bean.pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1)
+   * 调用统一下单接口，并组装生成支付所需参数对象
+   *
+   * @param request 统一下单请求参数
+   * @param <T>     请使用{@link com.github.binarywang.wxpay.bean.order}包下的类
+   * @return 返回 {@link com.github.binarywang.wxpay.bean.order}包下的类对象
+   */
+  <T> T createOrder(WxPayUnifiedOrderRequest request) throws WxPayException;
+
+  /**
+   * 统一下单(详见https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_1)
    * 在发起微信支付前，需要调用统一下单接口，获取"预支付交易会话标识"
    * 接口地址：https://api.mch.weixin.qq.com/pay/unifiedorder
    *
@@ -63,10 +112,12 @@ public interface WxPayService {
 
   /**
    * 该接口调用“统一下单”接口，并拼装发起支付请求需要的参数
-   * 详见http://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421141115&token=&lang=zh_CN
+   * 详见https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=8_5
    *
    * @param request 请求对象，注意一些参数如appid、mchid等不用设置，方法内会自动从配置对象中获取到（前提是对应配置中已经设置）
+   * @deprecated 建议使用 {@link com.github.binarywang.wxpay.service.WxPayService#createOrder(WxPayUnifiedOrderRequest)}
    */
+  @Deprecated
   Map<String, String> getPayInfo(WxPayUnifiedOrderRequest request) throws WxPayException;
 
   /**
@@ -112,10 +163,23 @@ public interface WxPayService {
     throws WxPayException;
 
   /**
-   * 读取支付结果通知
+   * @see WxPayService#parseOrderNotifyResult(String)
+   * @deprecated use {@link WxPayService#parseOrderNotifyResult(String)} instead
+   */
+  @Deprecated
+  WxPayOrderNotifyResult getOrderNotifyResult(String xmlData) throws WxPayException;
+
+  /**
+   * 解析支付结果通知
    * 详见https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
    */
-  WxPayOrderNotifyResult getOrderNotifyResult(String xmlData) throws WxPayException;
+  WxPayOrderNotifyResult parseOrderNotifyResult(String xmlData) throws WxPayException;
+
+  /**
+   * 解析退款结果通知
+   * 详见https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_16&index=9
+   */
+  WxPayRefundNotifyResult parseRefundNotifyResult(String xmlData) throws WxPayException;
 
   /**
    * 发送微信红包给个人用户
@@ -145,29 +209,15 @@ public interface WxPayService {
   WxPayRedpackQueryResult queryRedpack(String mchBillNo) throws WxPayException;
 
   /**
-   * <pre>
-   * 企业付款业务是基于微信支付商户平台的资金管理能力，为了协助商户方便地实现企业向个人付款，针对部分有开发能力的商户，提供通过API完成企业付款的功能。
-   * 比如目前的保险行业向客户退保、给付、理赔。
-   * 企业付款将使用商户的可用余额，需确保可用余额充足。查看可用余额、充值、提现请登录商户平台“资金管理”https://pay.weixin.qq.com/进行操作。
-   * 注意：与商户微信支付收款资金并非同一账户，需要单独充值。
-   * 文档详见:https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_2
-   * 接口链接：https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers
-   * </pre>
-   *
-   * @param request 请求对象
+   * 请使用this.getEntPayService().entPay()方法{@link EntPayService#entPay(EntPayRequest)}
    */
+  @Deprecated
   WxEntPayResult entPay(WxEntPayRequest request) throws WxPayException;
 
   /**
-   * <pre>
-   * 查询企业付款API
-   * 用于商户的企业付款操作进行结果查询，返回付款操作详细结果。
-   * 文档详见:https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_3
-   * 接口链接：https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo
-   * </pre>
-   *
-   * @param partnerTradeNo 商户订单号
+   * 请使用this.getEntPayService().queryEntPay()方法 {@link EntPayService#queryEntPay(String)}
    */
+  @Deprecated
   WxEntPayQueryResult queryEntPay(String partnerTradeNo) throws WxPayException;
 
   /**
@@ -368,4 +418,29 @@ public interface WxPayService {
    * </pre>
    */
   WxPayCouponInfoQueryResult queryCouponInfo(WxPayCouponInfoQueryRequest request) throws WxPayException;
+
+  /**
+   * 获取微信请求数据，方便接口调用方获取处理
+   */
+  WxPayApiData getWxApiData();
+
+  /**
+   * <pre>
+   * 拉取订单评价数据
+   * 商户可以通过该接口拉取用户在微信支付交易记录中针对你的支付记录进行的评价内容。商户可结合商户系统逻辑对该内容数据进行存储、分析、展示、客服回访以及其他使用。如商户业务对评价内容有依赖，可主动引导用户进入微信支付交易记录进行评价。
+   * 注意：
+   * 1. 该内容所有权为提供内容的微信用户，商户在使用内容的过程中应遵从用户意愿
+   * 2. 一次最多拉取200条评价数据，可根据时间区间分批次拉取
+   * 3. 接口只能拉取最近三个月以内的评价数据
+   * 接口链接：https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment
+   * 是否需要证书：需要
+   * 文档地址：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_17&index=10
+   * </pre>
+   *
+   * @param beginDate 开始时间
+   * @param endDate   结束时间
+   * @param offset    位移
+   * @param limit     条数
+   */
+  String queryComment(Date beginDate, Date endDate, Integer offset, Integer limit) throws WxPayException;
 }

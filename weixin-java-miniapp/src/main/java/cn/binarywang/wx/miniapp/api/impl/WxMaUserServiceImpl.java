@@ -19,14 +19,14 @@ import java.util.Map;
 public class WxMaUserServiceImpl implements WxMaUserService {
   private WxMaService service;
 
-  WxMaUserServiceImpl(WxMaService service) {
+  public WxMaUserServiceImpl(WxMaService service) {
     this.service = service;
   }
 
   @Override
   public WxMaJscode2SessionResult getSessionInfo(String jsCode) throws WxErrorException {
     final WxMaConfig config = service.getWxMaConfig();
-    Map<String, String> params = new HashMap<>();
+    Map<String, String> params = new HashMap<>(8);
     params.put("appid", config.getAppid());
     params.put("secret", config.getSecret());
     params.put("js_code", jsCode);
@@ -44,7 +44,7 @@ public class WxMaUserServiceImpl implements WxMaUserService {
   @Override
   public boolean checkUserInfo(String sessionKey, String rawData, String signature) {
     final String generatedSignature = DigestUtils.sha1Hex(rawData + sessionKey);
-    System.out.println(generatedSignature);
+    //System.out.println(generatedSignature);
     return generatedSignature.equals(signature);
   }
 

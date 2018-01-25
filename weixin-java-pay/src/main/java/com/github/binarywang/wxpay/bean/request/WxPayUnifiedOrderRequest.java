@@ -1,27 +1,34 @@
 package com.github.binarywang.wxpay.bean.request;
 
 import com.github.binarywang.wxpay.config.WxPayConfig;
+import com.github.binarywang.wxpay.constant.WxPayConstants.TradeType;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import lombok.*;
 import me.chanjar.weixin.common.annotation.Required;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * <pre>
- * 统一下单请求参数对象
+ * 统一下单请求参数对象.
  * 参考文档：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
- * </pre>
  * Created by Binary Wang on 2016/9/25.
+ * </pre>
  *
- * @author binarywang (https://github.com/binarywang)
+ * @author <a href="https://github.com/binarywang">Binary Wang</a>
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Builder(builderMethodName = "newBuilder")
+@NoArgsConstructor
+@AllArgsConstructor
 @XStreamAlias("xml")
-public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
-  private static final String[] TRADE_TYPES = new String[]{"JSAPI", "NATIVE", "APP", "MWEB"};
+public class WxPayUnifiedOrderRequest extends BaseWxPayRequest {
+  private static final long serialVersionUID = 4611350167813931828L;
 
   /**
    * <pre>
-   * 字段名：设备号
+   * 字段名：设备号.
    * 变量名：device_info
    * 是否必填：否
    * 类型：String(32)
@@ -34,7 +41,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：商品描述
+   * 字段名：商品描述.
    * 变量名：body
    * 是否必填：是
    * 类型：String(128)
@@ -48,7 +55,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：商品详情
+   * 字段名：商品详情.
    * 变量名：detail
    * 是否必填：否
    * 类型：String(6000)
@@ -89,7 +96,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：附加数据
+   * 字段名：附加数据.
    * 变量名：attach
    * 是否必填：否
    * 类型：String(127)
@@ -102,7 +109,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：商户订单号
+   * 字段名：商户订单号.
    * 变量名：out_trade_no
    * 是否必填：是
    * 类型：String(32)
@@ -116,7 +123,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：货币类型
+   * 字段名：货币类型.
    * 变量名：fee_type
    * 是否必填：否
    * 类型：String(16)
@@ -129,7 +136,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：总金额
+   * 字段名：总金额.
    * 变量名：total_fee
    * 是否必填：是
    * 类型：Int
@@ -143,7 +150,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：终端IP
+   * 字段名：终端IP.
    * 变量名：spbill_create_ip
    * 是否必填：是
    * 类型：String(16)
@@ -157,7 +164,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：交易起始时间
+   * 字段名：交易起始时间.
    * 变量名：time_start
    * 是否必填：否
    * 类型：String(14)
@@ -170,7 +177,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：交易结束时间
+   * 字段名：交易结束时间.
    * 变量名：time_expire
    * 是否必填：否
    * 类型：String(14)
@@ -184,7 +191,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：商品标记
+   * 字段名：商品标记.
    * 变量名：goods_tag
    * 是否必填：否
    * 类型：String(32)
@@ -197,7 +204,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：通知地址
+   * 字段名：通知地址.
    * 变量名：notify_url
    * 是否必填：是
    * 类型：String(256)
@@ -207,11 +214,11 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
    */
   @Required
   @XStreamAlias("notify_url")
-  private String notifyURL;
+  private String notifyUrl;
 
   /**
    * <pre>
-   * 字段名：交易类型
+   * 字段名：交易类型.
    * 变量名：trade_type
    * 是否必填：是
    * 类型：String(16)
@@ -226,7 +233,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：商品Id
+   * 字段名：商品Id.
    * 变量名：product_id
    * 是否必填：否
    * 类型：String(32)
@@ -239,7 +246,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：指定支付方式
+   * 字段名：指定支付方式.
    * 变量名：limit_pay
    * 是否必填：否
    * 类型：String(32)
@@ -252,7 +259,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：用户标识
+   * 字段名：用户标识.
    * 变量名：openid
    * 是否必填：否
    * 类型：String(128)
@@ -267,7 +274,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：用户子标识
+   * 字段名：用户子标识.
    * 变量名：sub_openid
    * 是否必填：否
    * 类型：String(128)
@@ -282,7 +289,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
 
   /**
    * <pre>
-   * 字段名：场景信息
+   * 字段名：场景信息.
    * 变量名：scene_info
    * 是否必填：否，对H5支付来说是必填
    * 类型：String(256)
@@ -301,7 +308,7 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
   private String sceneInfo;
   /**
    * <pre>
-   * 字段名：浏览器指纹
+   * 字段名：浏览器指纹.
    * 变量名：fingerprint
    * 是否必填：否
    * 详细参考 https://pay.weixin.qq.com/wiki/doc/api/H5.php?chapter=15_7&index=6
@@ -310,148 +317,17 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
   @XStreamAlias("fingerprint")
   private String fingerprint;
 
-  public WxPayUnifiedOrderRequest() {
-  }
-
-  private WxPayUnifiedOrderRequest(Builder builder) {
-    setDeviceInfo(builder.deviceInfo);
-    setAppid(builder.appid);
-    setBody(builder.body);
-    setMchId(builder.mchId);
-    setSubAppId(builder.subAppId);
-    setSubMchId(builder.subMchId);
-    setNonceStr(builder.nonceStr);
-    setSign(builder.sign);
-    setDetail(builder.detail);
-    setAttach(builder.attach);
-    setOutTradeNo(builder.outTradeNo);
-    setFeeType(builder.feeType);
-    setTotalFee(builder.totalFee);
-    setSpbillCreateIp(builder.spbillCreateIp);
-    setTimeStart(builder.timeStart);
-    setTimeExpire(builder.timeExpire);
-    setGoodsTag(builder.goodsTag);
-    setNotifyURL(builder.notifyURL);
-    setTradeType(builder.tradeType);
-    setProductId(builder.productId);
-    setLimitPay(builder.limitPay);
-    setOpenid(builder.openid);
-    setSubOpenid(builder.subOpenid);
-    setSceneInfo(builder.sceneInfo);
-    fingerprint = builder.fingerprint;
-  }
-
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  public String getDeviceInfo() {
-    return this.deviceInfo;
-  }
-
-  public void setDeviceInfo(String deviceInfo) {
-    this.deviceInfo = deviceInfo;
-  }
-
-  public String getBody() {
-    return this.body;
-  }
-
-  public void setBody(String body) {
-    this.body = body;
-  }
-
-  public String getDetail() {
-    return this.detail;
-  }
-
-  public void setDetail(String detail) {
-    this.detail = detail;
-  }
-
-  public String getAttach() {
-    return this.attach;
-  }
-
-  public void setAttach(String attach) {
-    this.attach = attach;
-  }
-
-  public String getOutTradeNo() {
-    return this.outTradeNo;
-  }
-
-  public void setOutTradeNo(String outTradeNo) {
-    this.outTradeNo = outTradeNo;
-  }
-
-  public String getFeeType() {
-    return this.feeType;
-  }
-
-  public void setFeeType(String feeType) {
-    this.feeType = feeType;
-  }
-
-  public Integer getTotalFee() {
-    return this.totalFee;
-  }
-
-  public void setTotalFee(Integer totalFee) {
-    this.totalFee = totalFee;
-  }
-
-  public String getSpbillCreateIp() {
-    return this.spbillCreateIp;
-  }
-
-  public void setSpbillCreateIp(String spbillCreateIp) {
-    this.spbillCreateIp = spbillCreateIp;
-  }
-
-  public String getTimeStart() {
-    return this.timeStart;
-  }
-
-  public void setTimeStart(String timeStart) {
-    this.timeStart = timeStart;
-  }
-
-  public String getTimeExpire() {
-    return this.timeExpire;
-  }
-
-  public void setTimeExpire(String timeExpire) {
-    this.timeExpire = timeExpire;
-  }
-
-  public String getGoodsTag() {
-    return this.goodsTag;
-  }
-
-  public void setGoodsTag(String goodsTag) {
-    this.goodsTag = goodsTag;
-  }
-
-  public String getNotifyURL() {
-    return this.notifyURL;
-  }
-
   /**
-   * 如果配置中已经设置，可以不设置值
+   * 如果配置中已经设置，可以不设置值.
    *
-   * @param notifyURL
+   * @param notifyUrl 支付回调通知地址
    */
-  public void setNotifyURL(String notifyURL) {
-    this.notifyURL = notifyURL;
-  }
-
-  public String getTradeType() {
-    return this.tradeType;
+  public void setNotifyUrl(String notifyUrl) {
+    this.notifyUrl = notifyUrl;
   }
 
   /**
-   * 如果配置中已经设置，可以不设置值
+   * 如果配置中已经设置，可以不设置值.
    *
    * @param tradeType 交易类型
    */
@@ -459,66 +335,17 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
     this.tradeType = tradeType;
   }
 
-  public String getProductId() {
-    return this.productId;
-  }
-
-  public void setProductId(String productId) {
-    this.productId = productId;
-  }
-
-  public String getLimitPay() {
-    return this.limitPay;
-  }
-
-  public void setLimitPay(String limitPay) {
-    this.limitPay = limitPay;
-  }
-
-  public String getOpenid() {
-    return this.openid;
-  }
-
-  public void setOpenid(String openid) {
-    this.openid = openid;
-  }
-
-  public String getSubOpenid() {
-    return this.subOpenid;
-  }
-
-  public void setSubOpenid(String subOpenid) {
-    this.subOpenid = subOpenid;
-  }
-
-  public String getSceneInfo() {
-    return this.sceneInfo;
-  }
-
-  public void setSceneInfo(String sceneInfo) {
-    this.sceneInfo = sceneInfo;
-  }
-
   @Override
   protected void checkConstraints() throws WxPayException {
-//    if (!ArrayUtils.contains(TRADE_TYPES, this.getTradeType())) {
-//      throw new WxPayException(String.format("trade_type目前必须为%s其中之一,实际值：%s",
-//        Arrays.toString(TRADE_TYPES), this.getTradeType()));
-//    }
-
-    if ("JSAPI".equals(this.getTradeType()) && this.getOpenid() == null) {
-      throw new WxPayException("当 trade_type是'JSAPI'时未指定openid");
-    }
-
-    if ("NATIVE".equals(this.getTradeType()) && this.getProductId() == null) {
-      throw new WxPayException("当 trade_type是'NATIVE'时未指定product_id");
+    if (TradeType.NATIVE.equals(this.getTradeType()) && StringUtils.isBlank(this.getProductId())) {
+      throw new WxPayException("当trade_type是'NATIVE'时，需指定非空的product_id值");
     }
   }
 
   @Override
   public void checkAndSign(WxPayConfig config) throws WxPayException {
-    if (StringUtils.isBlank(this.getNotifyURL())) {
-      this.setNotifyURL(config.getNotifyUrl());
+    if (StringUtils.isBlank(this.getNotifyUrl())) {
+      this.setNotifyUrl(config.getNotifyUrl());
     }
 
     if (StringUtils.isBlank(this.getTradeType())) {
@@ -528,163 +355,4 @@ public class WxPayUnifiedOrderRequest extends WxPayBaseRequest {
     super.checkAndSign(config);
   }
 
-  public static final class Builder {
-    private String appid;
-    private String mchId;
-    private String subAppId;
-    private String subMchId;
-    private String nonceStr;
-    private String sign;
-    private String deviceInfo;
-    private String body;
-    private String detail;
-    private String attach;
-    private String outTradeNo;
-    private String feeType;
-    private Integer totalFee;
-    private String spbillCreateIp;
-    private String timeStart;
-    private String timeExpire;
-    private String goodsTag;
-    private String notifyURL;
-    private String tradeType;
-    private String productId;
-    private String limitPay;
-    private String openid;
-    private String subOpenid;
-    private String sceneInfo;
-    private String fingerprint;
-
-    private Builder() {
-    }
-
-    public Builder appid(String appid) {
-      this.appid = appid;
-      return this;
-    }
-
-    public Builder mchId(String mchId) {
-      this.mchId = mchId;
-      return this;
-    }
-
-    public Builder subAppId(String subAppId) {
-      this.subAppId = subAppId;
-      return this;
-    }
-
-    public Builder subMchId(String subMchId) {
-      this.subMchId = subMchId;
-      return this;
-    }
-
-    public Builder nonceStr(String nonceStr) {
-      this.nonceStr = nonceStr;
-      return this;
-    }
-
-    public Builder sign(String sign) {
-      this.sign = sign;
-      return this;
-    }
-
-    public Builder deviceInfo(String deviceInfo) {
-      this.deviceInfo = deviceInfo;
-      return this;
-    }
-
-    public Builder body(String body) {
-      this.body = body;
-      return this;
-    }
-
-    public Builder detail(String detail) {
-      this.detail = detail;
-      return this;
-    }
-
-    public Builder attach(String attach) {
-      this.attach = attach;
-      return this;
-    }
-
-    public Builder outTradeNo(String outTradeNo) {
-      this.outTradeNo = outTradeNo;
-      return this;
-    }
-
-    public Builder feeType(String feeType) {
-      this.feeType = feeType;
-      return this;
-    }
-
-    public Builder totalFee(Integer totalFee) {
-      this.totalFee = totalFee;
-      return this;
-    }
-
-    public Builder spbillCreateIp(String spbillCreateIp) {
-      this.spbillCreateIp = spbillCreateIp;
-      return this;
-    }
-
-    public Builder timeStart(String timeStart) {
-      this.timeStart = timeStart;
-      return this;
-    }
-
-    public Builder timeExpire(String timeExpire) {
-      this.timeExpire = timeExpire;
-      return this;
-    }
-
-    public Builder goodsTag(String goodsTag) {
-      this.goodsTag = goodsTag;
-      return this;
-    }
-
-    public Builder notifyURL(String notifyURL) {
-      this.notifyURL = notifyURL;
-      return this;
-    }
-
-    public Builder tradeType(String tradeType) {
-      this.tradeType = tradeType;
-      return this;
-    }
-
-    public Builder productId(String productId) {
-      this.productId = productId;
-      return this;
-    }
-
-    public Builder limitPay(String limitPay) {
-      this.limitPay = limitPay;
-      return this;
-    }
-
-    public Builder openid(String openid) {
-      this.openid = openid;
-      return this;
-    }
-
-    public Builder subOpenid(String subOpenid) {
-      this.subOpenid = subOpenid;
-      return this;
-    }
-
-    public Builder sceneInfo(String sceneInfo) {
-      this.sceneInfo = sceneInfo;
-      return this;
-    }
-
-    public Builder fingerprint(String fingerprint) {
-      this.fingerprint = fingerprint;
-      return this;
-    }
-
-    public WxPayUnifiedOrderRequest build() {
-      return new WxPayUnifiedOrderRequest(this);
-    }
-  }
 }

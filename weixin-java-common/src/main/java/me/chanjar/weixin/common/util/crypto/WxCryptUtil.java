@@ -28,10 +28,10 @@ import java.util.Random;
  */
 public class WxCryptUtil {
 
-  private static final Base64 base64 = new Base64();
+  private static final Base64 BASE64 = new Base64();
   private static final Charset CHARSET = StandardCharsets.UTF_8;
 
-  private static final ThreadLocal<DocumentBuilder> builderLocal = new ThreadLocal<DocumentBuilder>() {
+  private static final ThreadLocal<DocumentBuilder> BUILDER_LOCAL = new ThreadLocal<DocumentBuilder>() {
     @Override
     protected DocumentBuilder initialValue() {
       try {
@@ -47,7 +47,6 @@ public class WxCryptUtil {
   protected String appidOrCorpid;
 
   public WxCryptUtil() {
-    super();
   }
 
   /**
@@ -66,7 +65,7 @@ public class WxCryptUtil {
 
   static String extractEncryptPart(String xml) {
     try {
-      DocumentBuilder db = builderLocal.get();
+      DocumentBuilder db = BUILDER_LOCAL.get();
       Document document = db.parse(new InputSource(new StringReader(xml)));
 
       Element root = document.getDocumentElement();
@@ -106,7 +105,7 @@ public class WxCryptUtil {
   private static String genRandomStr() {
     String base = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     Random random = new Random();
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < 16; i++) {
       int number = random.nextInt(base.length());
       sb.append(base.charAt(number));
@@ -148,12 +147,11 @@ public class WxCryptUtil {
     String encryptedXml = encrypt(genRandomStr(), plainText);
 
     // 生成安全签名
-    String timeStamp = Long.toString(System.currentTimeMillis() / 1000l);
+    String timeStamp = Long.toString(System.currentTimeMillis() / 1000L);
     String nonce = genRandomStr();
 
     String signature = SHA1.gen(this.token, timeStamp, nonce, encryptedXml);
-    String result = generateXml(encryptedXml, signature, timeStamp, nonce);
-    return result;
+    return generateXml(encryptedXml, signature, timeStamp, nonce);
   }
 
   /**
@@ -194,9 +192,7 @@ public class WxCryptUtil {
       byte[] encrypted = cipher.doFinal(unencrypted);
 
       // 使用BASE64对加密后的字符串进行编码
-      String base64Encrypted = base64.encodeToString(encrypted);
-
-      return base64Encrypted;
+      return BASE64.encodeToString(encrypted);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -228,8 +224,7 @@ public class WxCryptUtil {
     }
 
     // 解密
-    String result = decrypt(cipherText);
-    return result;
+    return decrypt(cipherText);
   }
 
   /**

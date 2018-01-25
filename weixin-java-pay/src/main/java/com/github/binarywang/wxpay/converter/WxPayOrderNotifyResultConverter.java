@@ -1,7 +1,7 @@
 package com.github.binarywang.wxpay.converter;
 
-import com.github.binarywang.wxpay.bean.WxPayOrderNotifyCoupon;
-import com.github.binarywang.wxpay.bean.result.WxPayOrderNotifyResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyCoupon;
+import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -57,11 +57,11 @@ public class WxPayOrderNotifyResultConverter extends AbstractReflectionConverter
 
   @Override
   protected void marshallField(MarshallingContext context, Object newObj, Field field) {
-    if (field.getName().equals("couponList")) {
+    if ("couponList".equals(field.getName())) {
       return;
-    } else {
-      super.marshallField(context, newObj, field);
     }
+
+    super.marshallField(context, newObj, field);
   }
 
   @Override

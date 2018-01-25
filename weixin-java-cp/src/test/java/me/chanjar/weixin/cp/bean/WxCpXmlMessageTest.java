@@ -57,10 +57,10 @@ public class WxCpXmlMessageTest {
     WxCpXmlMessage wxMessage = WxCpXmlMessage.fromXml(xml);
     assertEquals(wxMessage.getToUserName(), "toUser");
     assertEquals(wxMessage.getFromUserName(), "fromUser");
-    assertEquals(wxMessage.getCreateTime(), new Long(1348831860l));
-    assertEquals(wxMessage.getMsgType(), WxConsts.XML_MSG_TEXT);
+    assertEquals(wxMessage.getCreateTime(), new Long(1348831860));
+    assertEquals(wxMessage.getMsgType(), WxConsts.XmlMsgType.TEXT);
     assertEquals(wxMessage.getContent(), "this is a test");
-    assertEquals(wxMessage.getMsgId(), new Long(1234567890123456l));
+    assertEquals(wxMessage.getMsgId(), new Long(1234567890123456L));
     assertEquals(wxMessage.getPicUrl(), "this is a url");
     assertEquals(wxMessage.getMediaId(), "media_id");
     assertEquals(wxMessage.getFormat(), "Format");
@@ -80,13 +80,13 @@ public class WxCpXmlMessageTest {
     assertEquals(wxMessage.getPrecision(), 119.385040);
     assertEquals(wxMessage.getScanCodeInfo().getScanType(), "qrcode");
     assertEquals(wxMessage.getScanCodeInfo().getScanResult(), "1");
-    assertEquals(wxMessage.getSendPicsInfo().getCount(), new Long(1l));
+    assertEquals(wxMessage.getSendPicsInfo().getCount(), new Long(1));
     assertEquals(wxMessage.getSendPicsInfo().getPicList().get(0).getPicMd5Sum(), "1b5f7c23b5bf75682a53e7b6d163e185");
     assertEquals(wxMessage.getSendLocationInfo().getLocationX(), "23");
     assertEquals(wxMessage.getSendLocationInfo().getLocationY(), "113");
     assertEquals(wxMessage.getSendLocationInfo().getScale(), "15");
     assertEquals(wxMessage.getSendLocationInfo().getLabel(), " 广州市海珠区客村艺苑路 106号");
-    assertEquals(wxMessage.getSendLocationInfo().getPoiname(), "wo de poi");
+    assertEquals(wxMessage.getSendLocationInfo().getPoiName(), "wo de poi");
   }
 
   public void testSendPicsInfo() {
@@ -108,7 +108,7 @@ public class WxCpXmlMessageTest {
     assertEquals(wxMessage.getToUserName(), "wx45a0972125658be9");
     assertEquals(wxMessage.getFromUserName(), "xiaohe");
     assertEquals(wxMessage.getCreateTime(), new Long(1502012364L));
-    assertEquals(wxMessage.getMsgType(), WxConsts.XML_MSG_EVENT);
+    assertEquals(wxMessage.getMsgType(), WxConsts.XmlMsgType.EVENT);
     assertEquals(wxMessage.getAgentId(), Integer.valueOf(1000004));
     assertEquals(wxMessage.getEvent(), "pic_weixin");
     assertEquals(wxMessage.getEventKey(), "faceSimilarity");
