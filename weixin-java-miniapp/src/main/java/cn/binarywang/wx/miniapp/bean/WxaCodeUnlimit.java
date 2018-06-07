@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class WxMaWxcodeLimit extends AbstractWxMaQrcodeWrapper implements Serializable {
+public class WxaCodeUnlimit extends AbstractWxMaQrcodeWrapper implements Serializable {
   private static final long serialVersionUID = 4782193774524960401L;
   private String scene;
   private String page;
@@ -25,11 +25,14 @@ public class WxMaWxcodeLimit extends AbstractWxMaQrcodeWrapper implements Serial
   @SerializedName("auto_color")
   private boolean autoColor = true;
 
+  @SerializedName("is_hyaline")
+  private boolean isHyaline = false;
+
   @SerializedName("line_color")
   private WxMaCodeLineColor lineColor = new WxMaCodeLineColor("0", "0", "0");
 
-  public static WxMaWxcodeLimit fromJson(String json) {
-    return WxMaGsonBuilder.create().fromJson(json, WxMaWxcodeLimit.class);
+  public static WxaCodeUnlimit fromJson(String json) {
+    return WxMaGsonBuilder.create().fromJson(json, WxaCodeUnlimit.class);
   }
 
 }
