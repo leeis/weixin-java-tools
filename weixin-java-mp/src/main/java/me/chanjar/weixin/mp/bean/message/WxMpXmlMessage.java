@@ -5,12 +5,14 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts;
-import me.chanjar.weixin.common.util.ToStringUtils;
 import me.chanjar.weixin.common.util.xml.XStreamCDataConverter;
 import me.chanjar.weixin.mp.api.WxMpConfigStorage;
 import me.chanjar.weixin.mp.util.crypto.WxMpCryptUtil;
@@ -26,8 +28,9 @@ import me.chanjar.weixin.mp.util.xml.XStreamTransformer;
  *
  * @author chanjarster
  */
-@XStreamAlias("xml")
 @Data
+@Slf4j
+@XStreamAlias("xml")
 public class WxMpXmlMessage implements Serializable {
   private static final long serialVersionUID = -3586245291677274914L;
 
@@ -339,6 +342,82 @@ public class WxMpXmlMessage implements Serializable {
   @XStreamAlias("SendLocationInfo")
   private SendLocationInfo sendLocationInfo = new SendLocationInfo();
 
+  /**
+   * 审核不通过原因
+   */
+  @XStreamAlias("RefuseReason")
+  private String refuseReason;
+
+  /**
+   * 是否为朋友推荐，0代表否，1代表是
+   */
+  @XStreamAlias("IsRecommendByFriend")
+  private String isRecommendByFriend;
+
+  /**
+   * 购买券点时，实际支付成功的时间
+   */
+  @XStreamAlias("PayFinishTime")
+  private String payFinishTime;
+
+  /**
+   * 购买券点时，支付二维码的生成时间
+   */
+  @XStreamAlias("CreateOrderTime")
+  private String createOrderTime;
+
+  /**
+   * 购买券点时，支付二维码的生成时间
+   */
+  @XStreamAlias("Desc")
+  private String desc;
+
+  /**
+   * 剩余免费券点数量
+   */
+  @XStreamAlias("FreeCoinCount")
+  private String freeCoinCount;
+
+  /**
+   * 剩余付费券点数量
+   */
+  @XStreamAlias("PayCoinCount")
+  private String payCoinCount;
+
+  /**
+   * 本次变动的免费券点数量
+   */
+  @XStreamAlias("RefundFreeCoinCount")
+  private String refundFreeCoinCount;
+
+  /**
+   * 本次变动的付费券点数量
+   */
+  @XStreamAlias("RefundPayCoinCount")
+  private String refundPayCoinCount;
+
+  /**
+   * <pre>
+   *    所要拉取的订单类型 ORDER_TYPE_SYS_ADD 平台赠送券点 ORDER_TYPE_WXPAY 充值券点 ORDER_TYPE_REFUND 库存未使用回退券点
+   *    ORDER_TYPE_REDUCE 券点兑换库存 ORDER_TYPE_SYS_REDUCE 平台扣减
+   * </pre>
+   */
+  @XStreamAlias("OrderType")
+  private String orderType;
+
+  /**
+   * 系统备注，说明此次变动的缘由，如开通账户奖励、门店奖励、核销奖励以及充值、扣减。
+   */
+  @XStreamAlias("Memo")
+  private String memo;
+
+  /**
+   * 所开发票的详情
+   */
+  @XStreamAlias("ReceiptInfo")
+  private String receiptInfo;
+
+
   ///////////////////////////////////////
   // 门店审核事件推送
   ///////////////////////////////////////
@@ -462,6 +541,21 @@ public class WxMpXmlMessage implements Serializable {
   @XStreamAlias("DeviceStatus")
   private Integer deviceStatus;
 
+  ///////////////////////////////////////
+  // 小程序 审核事件
+  ///////////////////////////////////////
+  /**
+   * 审核成功时的时间（整形），时间戳
+   */
+  @XStreamAlias("SuccTime")
+  private Long succTime;
+
+  /**
+   * 审核失败的原因
+   */
+  @XStreamAlias("Reason")
+  private String reason;
+
   public static WxMpXmlMessage fromXml(String xml) {
     //修改微信变态的消息内容格式，方便解析
     xml = xml.replace("</PicList><PicList>", "");
@@ -481,10 +575,11 @@ public class WxMpXmlMessage implements Serializable {
    * @param nonce             随机串
    * @param msgSignature      签名串
    */
-  public static WxMpXmlMessage fromEncryptedXml(String encryptedXml, WxMpConfigStorage wxMpConfigStorage, String timestamp,
-                                                String nonce, String msgSignature) {
+  public static WxMpXmlMessage fromEncryptedXml(String encryptedXml, WxMpConfigStorage wxMpConfigStorage,
+                                                String timestamp, String nonce, String msgSignature) {
     WxMpCryptUtil cryptUtil = new WxMpCryptUtil(wxMpConfigStorage);
     String plainText = cryptUtil.decrypt(msgSignature, timestamp, nonce, encryptedXml);
+    log.debug("解密后的原始xml消息内容：{}", plainText);
     return fromXml(plainText);
   }
 
@@ -530,7 +625,7 @@ public class WxMpXmlMessage implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringUtils.toSimpleString(this);
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
   }
 
 }
