@@ -4,6 +4,7 @@ import com.github.binarywang.wxpay.bean.WxPayApiData;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import jodd.util.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -37,8 +38,8 @@ public class WxPayServiceApacheHttpImpl extends BaseWxPayServiceImpl {
     try {
       HttpClientBuilder httpClientBuilder = createHttpClientBuilder(useKey);
       HttpPost httpPost = this.createHttpPost(url, requestStr);
-      try (CloseableHttpClient httpclient = httpClientBuilder.build()) {
-        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+      try (CloseableHttpClient httpClient = httpClientBuilder.build()) {
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
           final byte[] bytes = EntityUtils.toByteArray(response.getEntity());
           final String responseData = Base64.encodeToString(bytes);
           this.log.info("\n【请求地址】：{}\n【请求数据】：{}\n【响应数据(Base64编码后)】：{}", url, requestStr, responseData);
@@ -60,8 +61,8 @@ public class WxPayServiceApacheHttpImpl extends BaseWxPayServiceImpl {
     try {
       HttpClientBuilder httpClientBuilder = this.createHttpClientBuilder(useKey);
       HttpPost httpPost = this.createHttpPost(url, requestStr);
-      try (CloseableHttpClient httpclient = httpClientBuilder.build()) {
-        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+      try (CloseableHttpClient httpClient = httpClientBuilder.build()) {
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
           String responseString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
           this.log.info("\n【请求地址】：{}\n【请求数据】：{}\n【响应数据】：{}", url, requestStr, responseString);
           wxApiData.set(new WxPayApiData(url, requestStr, responseString, null));
@@ -82,7 +83,7 @@ public class WxPayServiceApacheHttpImpl extends BaseWxPayServiceImpl {
       return new StringEntity(new String(requestStr.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
     } catch (UnsupportedEncodingException e) {
       //cannot happen
-      this.log.error(e.getMessage(),e);
+      this.log.error(e.getMessage(), e);
       return null;
     }
   }
@@ -90,17 +91,16 @@ public class WxPayServiceApacheHttpImpl extends BaseWxPayServiceImpl {
   private HttpClientBuilder createHttpClientBuilder(boolean useKey) throws WxPayException {
     HttpClientBuilder httpClientBuilder = HttpClients.custom();
     if (useKey) {
-      this.setKey(httpClientBuilder);
+      this.initSSLContext(httpClientBuilder);
     }
 
-    if (StringUtils.isNotBlank(this.getConfig().getHttpProxyHost())
-      && this.getConfig().getHttpProxyPort() > 0) {
+    if (StringUtils.isNotBlank(this.getConfig().getHttpProxyHost()) && this.getConfig().getHttpProxyPort() > 0) {
       // 使用代理服务器 需要用户认证的代理服务器
       CredentialsProvider provider = new BasicCredentialsProvider();
-      provider.setCredentials(
-        new AuthScope(this.getConfig().getHttpProxyHost(), this.getConfig().getHttpProxyPort()),
+      provider.setCredentials(new AuthScope(this.getConfig().getHttpProxyHost(), this.getConfig().getHttpProxyPort()),
         new UsernamePasswordCredentials(this.getConfig().getHttpProxyUsername(), this.getConfig().getHttpProxyPassword()));
       httpClientBuilder.setDefaultCredentialsProvider(provider);
+      httpClientBuilder.setProxy(new HttpHost(this.getConfig().getHttpProxyHost(), this.getConfig().getHttpProxyPort()));
     }
     return httpClientBuilder;
   }
@@ -118,15 +118,15 @@ public class WxPayServiceApacheHttpImpl extends BaseWxPayServiceImpl {
     return httpPost;
   }
 
-  private void setKey(HttpClientBuilder httpClientBuilder) throws WxPayException {
+  private void initSSLContext(HttpClientBuilder httpClientBuilder) throws WxPayException {
     SSLContext sslContext = this.getConfig().getSslContext();
     if (null == sslContext) {
       sslContext = this.getConfig().initSSLContext();
     }
 
-    SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
+    SSLConnectionSocketFactory connectionSocketFactory = new SSLConnectionSocketFactory(sslContext,
       new String[]{"TLSv1"}, null, new DefaultHostnameVerifier());
-    httpClientBuilder.setSSLSocketFactory(sslsf);
+    httpClientBuilder.setSSLSocketFactory(connectionSocketFactory);
   }
 
 }
