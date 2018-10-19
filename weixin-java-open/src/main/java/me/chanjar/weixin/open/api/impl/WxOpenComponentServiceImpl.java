@@ -394,7 +394,7 @@ public class WxOpenComponentServiceImpl implements WxOpenComponentService {
     JsonObject param = new JsonObject();
     param.addProperty("appid", appId);
 
-    String json = post(CREATE_OPEN_URL, param.toString());
+    String json = post(CREATE_OPEN_URL, param.toString(), "access_token");
 
     return WxOpenCreateResult.fromJson(json);
   }
