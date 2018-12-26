@@ -7,10 +7,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.github.binarywang.wxpay.bean.result.BaseWxPayResult;
+import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -18,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.chanjar.weixin.common.util.json.WxGsonBuilder;
 import me.chanjar.weixin.common.util.xml.XStreamInitializer;
 
 /**
@@ -46,6 +46,10 @@ public class WxPayRefundNotifyResult extends BaseWxPayResult implements Serializ
    */
   public static WxPayRefundNotifyResult fromXML(String xmlString, String mchKey) throws WxPayException {
     WxPayRefundNotifyResult result = BaseWxPayResult.fromXML(xmlString, WxPayRefundNotifyResult.class);
+    if (WxPayConstants.ResultCode.FAIL.equals(result.getReturnCode())) {
+      return result;
+    }
+
     String reqInfoString = result.getReqInfoString();
     try {
       final String keyMd5String = DigestUtils.md5Hex(mchKey).toLowerCase();
@@ -53,7 +57,8 @@ public class WxPayRefundNotifyResult extends BaseWxPayResult implements Serializ
 
       Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
       cipher.init(Cipher.DECRYPT_MODE, key);
-      result.setReqInfo(ReqInfo.fromXML(new String(cipher.doFinal(Base64.decodeBase64(reqInfoString)))));
+      result.setReqInfo(ReqInfo.fromXML(new String(cipher.doFinal(Base64.decodeBase64(reqInfoString)),
+        StandardCharsets.UTF_8)));
     } catch (Exception e) {
       throw new WxPayException("解密退款通知加密信息时出错", e);
     }
@@ -84,7 +89,7 @@ public class WxPayRefundNotifyResult extends BaseWxPayResult implements Serializ
   public static class ReqInfo {
     @Override
     public String toString() {
-      return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+      return WxGsonBuilder.create().toJson(this);
     }
 
     /**
